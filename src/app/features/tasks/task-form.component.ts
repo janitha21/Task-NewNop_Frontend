@@ -39,8 +39,12 @@ import { TaskService } from '../../core/services/task.service';
             
             <div class="form-group w-full">
               <label class="form-label">Due Date</label>
-              <input type="datetime-local" class="form-input" formControlName="dueDate">
+              <input #dateInput type="datetime-local" class="form-input" formControlName="dueDate" [min]="minDate" (click)="dateInput.showPicker()" style="cursor: pointer;">
             </div>
+          </div>
+
+          <div *ngIf="errorMessage" class="form-error mb-4 text-center" style="color: #ff6b6b;">
+            {{ errorMessage }}
           </div>
 
           <div class="flex justify-between mt-4">
@@ -87,10 +91,18 @@ export class TaskFormComponent {
   });
 
   isLoading = false;
+  errorMessage = '';
+
+  get minDate(): string {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  }
 
   close() {
     this.formClosed.emit();
     this.taskForm.reset();
+    this.errorMessage = '';
   }
 
   onSubmit() {
@@ -117,6 +129,13 @@ export class TaskFormComponent {
         },
         error: (err) => {
           this.isLoading = false;
+          if (err.status === 400 && err.error?.message) {
+            this.errorMessage = err.error.message.replace('Validation Failed: ', '');
+          } else if (err.error?.message) {
+            this.errorMessage = 'Server Error: ' + err.error.message;
+          } else {
+            this.errorMessage = 'An error occurred while saving the task.';
+          }
           console.error(err);
         }
       });
