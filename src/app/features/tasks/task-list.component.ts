@@ -107,9 +107,12 @@ export class TaskListComponent implements OnInit, OnDestroy {
 
   loadTasks() {
     const status = this.statusFilter ? (this.statusFilter as TaskStatus) : undefined;
-    
-    // Only pass ownerUuid if NOT admin. Backend actually handles this based on auth token
-    this.taskService.getTasks(this.currentPage(), 10, status).subscribe(page => {
+
+    const request$ = this.authService.isAdmin()
+      ? this.taskService.getAllTasks(this.currentPage(), 10, status)
+      : this.taskService.getMyTasks(this.currentPage(), 10, status);
+
+    request$.subscribe(page => {
       this.tasks.set(page.content);
       this.totalPages.set(page.totalPages);
     });
