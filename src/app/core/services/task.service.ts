@@ -10,15 +10,27 @@ import { environment } from '../../../environments/environment';
 export class TaskService {
   constructor(private http: HttpClient) {}
 
-  getTasks(page: number = 0, size: number = 10, status?: TaskStatus, ownerUuid?: string): Observable<Page<TaskDto>> {
+  // ADMIN only — fetches all tasks in the system, with optional filters
+  getAllTasks(page: number = 0, size: number = 10, status?: TaskStatus, ownerUuid?: string): Observable<Page<TaskDto>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
-    
+
     if (status) params = params.set('status', status);
     if (ownerUuid) params = params.set('owner', ownerUuid);
 
     return this.http.get<Page<TaskDto>>(`${environment.apiUrl}/tasks`, { params });
+  }
+
+  // Any authenticated user — fetches only the current user's own tasks
+  getMyTasks(page: number = 0, size: number = 10, status?: TaskStatus): Observable<Page<TaskDto>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (status) params = params.set('status', status);
+
+    return this.http.get<Page<TaskDto>>(`${environment.apiUrl}/tasks/my`, { params });
   }
 
   getTaskById(uuid: string): Observable<TaskDto> {

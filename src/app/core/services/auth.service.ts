@@ -10,12 +10,12 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly TOKEN_KEY = 'auth_token';
+  private readonly ACCESS_TOKEN_KEY  = 'access_token';
+  private readonly REFRESH_TOKEN_KEY = 'refresh_token';
   private readonly USER_KEY = 'auth_user';
 
-  // Using signals for reactive state
   currentUser = signal<UserDto | null>(this.getStoredUser());
-  isAuthenticated = signal<boolean>(!!this.getToken());
+  isAuthenticated = signal<boolean>(!!this.getAccessToken());
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -29,16 +29,33 @@ export class AuthService {
     return this.http.post<UserDto>(`${environment.apiUrl}/auth/register`, user);
   }
 
+  refreshAccessToken(): Observable<AuthResponse> {
+    const refreshToken = this.getRefreshToken();
+    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/refresh`, { refreshToken }).pipe(
+      tap(response => this.handleAuthentication(response))
+    );
+  }
+
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.ACCESS_TOKEN_KEY);
+    localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     this.currentUser.set(null);
     this.isAuthenticated.set(false);
     this.router.navigate(['/auth/login']);
   }
 
+  getAccessToken(): string | null {
+    return localStorage.getItem(this.ACCESS_TOKEN_KEY);
+  }
+
+  getRefreshToken(): string | null {
+    return localStorage.getItem(this.REFRESH_TOKEN_KEY);
+  }
+
+  /** @deprecated use getAccessToken() */
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    return this.getAccessToken();
   }
 
   private getStoredUser(): UserDto | null {
@@ -47,7 +64,8 @@ export class AuthService {
   }
 
   private handleAuthentication(response: AuthResponse): void {
-    localStorage.setItem(this.TOKEN_KEY, response.token);
+    localStorage.setItem(this.ACCESS_TOKEN_KEY, response.accessToken);
+    localStorage.setItem(this.REFRESH_TOKEN_KEY, response.refreshToken);
     localStorage.setItem(this.USER_KEY, JSON.stringify(response.user));
     this.currentUser.set(response.user);
     this.isAuthenticated.set(true);
