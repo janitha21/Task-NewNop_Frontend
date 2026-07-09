@@ -70,7 +70,12 @@ export class TaskFormComponent {
         dueDate: new Date(val.dueDate).toISOString().slice(0, 16)
       });
     } else {
-      this.taskForm.reset({ status: TaskStatus.PENDING });
+      const defaultDate = new Date();
+      defaultDate.setHours(defaultDate.getHours() + 1);
+      const tzOffset = defaultDate.getTimezoneOffset() * 60000;
+      const localISOTime = (new Date(defaultDate.getTime() - tzOffset)).toISOString().slice(0, 16);
+      
+      this.taskForm.reset({ status: TaskStatus.PENDING, dueDate: localISOTime });
     }
   }
   
