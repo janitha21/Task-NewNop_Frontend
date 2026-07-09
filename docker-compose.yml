@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: .
+    container_name: task_manager_frontend
+    ports:
+      # Map host port 4200 to container port 80 (Nginx)
+      # This ensures CORS matches the backend's expected http://localhost:4200 origin
+      - "4200:80"

@@ -9,43 +9,53 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
-    <div class="modal-overlay" style="position: relative; min-height: 100vh;">
-      <div class="glass-panel" style="width: 100%; max-width: 400px;">
-        <div class="text-center mb-4">
-          <h2>Welcome Back</h2>
-          <p>Log in to access your task tracker.</p>
+    <div style="display: flex; min-height: 100vh; width: 100vw; overflow: hidden; background-color: var(--bg-base);">
+      <!-- Left side: Background Image -->
+      <div style="flex: 1; position: relative; display: none; @media (min-width: 768px) { display: block; }">
+        <img src="assets/auth-bg.png" style="width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0;" alt="Background">
+        <div style="position: absolute; inset: 0; background: linear-gradient(to right, transparent, var(--bg-base));"></div>
+        <div style="position: absolute; bottom: 10%; left: 10%; max-width: 400px;" class="animate-in">
+          <h1 style="font-size: 3.5rem; line-height: 1.1; margin-bottom: 16px;">Master Your Workflow.</h1>
+          <p style="font-size: 1.1rem; opacity: 0.8;">The most beautiful, professional, and real-time task manager built for power users.</p>
         </div>
-        
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-          <div class="form-group">
-            <label class="form-label">Username</label>
-            <input type="text" class="form-input" formControlName="username" placeholder="Enter your username">
-            <div *ngIf="loginForm.get('username')?.touched && loginForm.get('username')?.invalid" class="form-error">
-              Username is required
+      </div>
+      
+      <!-- Right side: Login Form -->
+      <div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; position: relative; z-index: 10;">
+        <div style="width: 100%; max-width: 400px;" class="animate-in">
+          <div class="mb-6">
+            <div style="width: 48px; height: 48px; background: var(--accent-primary); border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: center;">
+               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
             </div>
+            <h2 style="font-size: 2rem;">Welcome Back</h2>
+            <p>Log in to access your dashboard.</p>
           </div>
           
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <input type="password" class="form-input" formControlName="password" placeholder="Enter your password">
-            <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid" class="form-error">
-              Password is required
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="glass-panel" style="padding: 32px;">
+            <div class="form-group">
+              <label class="form-label">Username</label>
+              <input type="text" class="form-input" formControlName="username" placeholder="Enter your username">
             </div>
-          </div>
+            
+            <div class="form-group mb-6">
+              <label class="form-label">Password</label>
+              <input type="password" class="form-input" formControlName="password" placeholder="Enter your password">
+            </div>
 
-          <div *ngIf="errorMessage" class="form-error mb-4 text-center">
-            {{ errorMessage }}
-          </div>
+            <div *ngIf="errorMessage" class="form-error mb-4">
+              {{ errorMessage }}
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-full" [disabled]="loginForm.invalid || isLoading" style="padding: 14px; font-size: 1rem;">
+              {{ isLoading ? 'Logging in...' : 'Log In' }}
+            </button>
+          </form>
           
-          <button type="submit" class="btn btn-primary w-full" [disabled]="loginForm.invalid || isLoading">
-            {{ isLoading ? 'Logging in...' : 'Log In' }}
-          </button>
-        </form>
-        
-        <div class="text-center mt-4">
-          <p style="font-size: 0.875rem">
-            Don't have an account? <a routerLink="/auth/register" style="color: var(--accent-primary); text-decoration: none;">Sign Up</a>
-          </p>
+          <div class="text-center mt-6">
+            <p style="font-size: 0.95rem">
+              Don't have an account? <a routerLink="/auth/register" style="color: var(--accent-primary); text-decoration: none; font-weight: 600;">Sign Up</a>
+            </p>
+          </div>
         </div>
       </div>
     </div>
