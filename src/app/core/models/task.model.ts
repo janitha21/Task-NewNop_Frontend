@@ -10,6 +10,7 @@ export interface TaskDto {
   description: string;
   status: TaskStatus;
   dueDate: string;
+  createdAt?: string;
   ownerUuid?: string;
 }
 
